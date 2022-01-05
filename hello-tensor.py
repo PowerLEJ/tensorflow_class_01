@@ -1,3 +1,7 @@
+import os
+import keras
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 import tensorflow as tf
 msg = tf.constant('hello world')
 tf.print(msg)
@@ -15,10 +19,10 @@ print('평가용 출력 데이터 모양:', Y_test.shape)
 # 이미지 데이터 원본 출력
 import matplotlib.pyplot as plt
 plt.imshow(X_train[0], cmap='gray')
-# plt.show()
+plt.show()
 
-# print('첫 번째 학습용 데이터 입력값:', X_train[0])
-# print('첫 번째 학습용 데이터 출력값:', Y_train[0])
+print('첫 번째 학습용 데이터 입력값:', X_train[0])
+print('첫 번째 학습용 데이터 출력값:', Y_train[0])
 
 # 이미지 데이터 [0, 1] 스케일링
 X_train = X_train / 255.0
@@ -26,8 +30,8 @@ X_test = X_test / 255.0
 
 # 스케일링 후 데이터 확인
 plt.imshow(X_train[0], cmap='gray')
-# plt.show()
-# print('첫 번째 학습용 데이터 입력값:', X_train[0])
+plt.show()
+print('첫 번째 학습용 데이터 입력값:', X_train[0])
 
 # 인공신경망 구현
 model = tf.keras.models.Sequential()
