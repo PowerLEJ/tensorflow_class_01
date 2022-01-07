@@ -64,3 +64,24 @@ print('평가용 출력 데이터 모양', Y_test.shape)
 sns.set(font_scale=2)
 sns.boxplot(data=z_data, palette='dark')
 plt.show()
+
+
+######## 인공 신경망 구현 ########
+
+# 케라스 DNN 구현
+model = Sequential()
+input = X_train.shape[1] # (354, 12) 에서 1번째는 12이다
+# 은닉층 1 Dense는 은닉층에 대한 뉴런 200개랑 입력층의 12개 뉴런을 곱해서 2400개 그리고 은닉층 뉴런 200개 더해서 총 2600개
+model.add(Dense(200,
+                input_dim=input,
+                activation='relu'))
+# 은닉층 2추가
+model.add(Dense(1000,
+                activation='relu'))
+# 최종 출력층 추가
+model.add(Dense(1))
+
+print('\nDNN 요약')
+model.summary()
+
+
