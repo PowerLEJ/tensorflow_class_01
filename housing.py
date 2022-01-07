@@ -85,3 +85,44 @@ print('\nDNN 요약')
 model.summary()
 
 
+######## 인공 신경망 학습 ########
+
+# sgd : 함수의 기울기(경사)를 구하여 낮은 쪽으로 이동
+# mse : (예측값 - 정답)제곱의 평균
+# 최적화 함수와 손실 함수 지정 (인공신경망 학습 환경 설정)
+model.compile(optimizer='sgd',
+              loss='mse')
+
+print('\nDNN 학습 시작')
+begin = time()
+
+# epochs 학습 시 몇 번 반복할지
+# batch_size 한꺼번에 몇 개를 처리할지
+# verbose 학습 내용의 결과를 매번 출력할지 0은 출력하지 않음, 1은 출력함
+# < 인공신경망 학습 >
+model.fit(X_train,
+          Y_train,
+          epochs=MY_EPOCH,
+          batch_size=MY_BATCH,
+          verbose=0
+          )
+end = time()
+print('총 학습 시간: {:.1f}초'.format(end-begin))
+
+######## 인공 신경망 평가 및 활용 ########
+
+# 신경망 평가 및 손실값 계산
+loss = model.evaluate(X_test,
+                      Y_test,
+                      verbose=1)
+# 152개 문제를 한 번만 풀었다
+print('\nDNN 평균 제곱 오차 (MSE): {:.2f}'.format(loss))
+
+# 신경망 활용 및 산포도 출력
+pred = model.predict(X_test)
+sns.regplot(x=Y_test, y=pred) # x축은 정답, y축은 예측값
+
+plt.xlabel("Actual Values")
+plt.ylabel("Predicted Values")
+plt.show()
+
