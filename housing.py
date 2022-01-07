@@ -10,8 +10,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 # 하이퍼 파라미터
-MY_EPOCH = 500 # 학습 시 몇 번 반복할지
-MY_BATCH = 64 # 한꺼번에 몇 개를 처리할지
+MY_EPOCH = 500 # 기계 학습 시 학습 데이터를 몇 번 반복하여 학습할지 지정
+MY_BATCH = 64 # 학습 데이터를 매번 메모리에서 몇 개씩 계산할지 지정
 
 ############ 데이터 준비 #############
 
@@ -20,6 +20,9 @@ MY_BATCH = 64 # 한꺼번에 몇 개를 처리할지
 heading = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'LSTAT', 'MEDV']
 
 raw = pd.read_csv('housing.csv')
+# # CRIM 컬럼 없애보기
+# raw = raw.drop('CRIM', axis=1)
+# heading.pop(0)
 
 # 데이터 원본 출력
 print('원본 데이터 샘플 10개')
@@ -55,6 +58,10 @@ Y_data = z_data['MEDV']
 # test_size는 평가용 데이터를 전체 데이터에서 무작위로 몇 퍼센트 무시할 건지 지정
 X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.3)
 
+## 학습용 데이터 후반부를 지워봤음
+# X_train = X_train.drop(X_train.index[177:])
+# Y_train = Y_train.drop(Y_train.index[177:])
+
 print('\n학습용 입력 데이터 모양', X_train.shape)
 print('학습용 출력 데이터 모양', Y_train.shape)
 print('평가용 입력 데이터 모양', X_test.shape)
@@ -78,6 +85,7 @@ model.add(Dense(200,
 # 은닉층 2추가
 model.add(Dense(1000,
                 activation='relu'))
+
 # 최종 출력층 추가
 model.add(Dense(1))
 
