@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from time import time
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from keras.models import Sequential
 from keras.layers import InputLayer, Dense
@@ -39,8 +39,10 @@ print(raw.head(13))
 print('\n원본 데이터 통계')
 print(raw.describe())
 
-# MinMax 데이터 정규화
+# MinMax 데이터 정규화(데이터를 [0, 1]범위로 정규화)
 scaler = MinMaxScaler()
+# # Standard 스케일링 (Z-점수 정규화)
+# scaler = StandardScaler
 s_data = scaler.fit_transform(raw) # raw는 데이터프레임인데 numpy 형식으로 전환
 
 print('\nMinMax 정규화 형식', type(s_data))
