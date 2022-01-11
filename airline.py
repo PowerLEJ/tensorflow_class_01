@@ -90,3 +90,72 @@ print('학습용 출력 데이터 모양:', Y_train.shape)
 print('평가용 입력 데이터 모양:', X_test.shape)
 print('평가용 출력 데이터 모양:', Y_test.shape)
 
+
+
+################# 인공 신경망 구현 ################
+
+# RNN 구현
+# 케라스 RNN은 2차원 입력만 허용
+model = Sequential()
+model.add(InputLayer(input_shape=MY_SHAPE))
+model.add(LSTM(MY_UNIT))
+
+model.add(Dense(1,
+                activation='sigmoid'))
+
+print('\nRNN 요약')
+model.summary()
+
+################# 인공 신경망 학습 ###############
+
+# 최적화 함수와 손실 함수 지정
+model.compile(optimizer='rmsprop',
+              loss='mse') # 정확한 값을 들고 오지 않아도 된다
+
+begin = time()
+print('\nRNN 학습 시작')
+
+model.fit(X_train,
+          Y_train,
+          epochs=MY_EPOCH,
+          batch_size=MY_BATCH,
+          verbose=0)
+
+end = time()
+print('총 학습 시간: {:.1f}초'.format(end - begin))
+
+################## 인공 신경망 평가 #################
+
+# RNN 평가
+loss = model.evaluate(X_test,
+                      Y_test,
+                      verbose=1)
+
+print('최종 MSE 손실값: {:.3f}'.format(loss))
+
+# RNN 추측
+pred = model.predict(X_test)
+pred = scaler.inverse_transform(pred)
+pred = pred.flatten().astype(int)
+print('\n추측 결과 원본: ', pred)
+
+# 정답 역전환
+truth = scaler.inverse_transform(Y_test)
+truth = truth.flatten().astype(int)
+print('\n정답 원본: ', truth)
+
+
+# line plot 구성
+axes = plt.gca()
+axes.set_ylim([0, 650]) # y축의 최소값과 최대값의 범위 지정(0부터 650까지)
+
+sns.lineplot(data=pred, label='pred', color='blue')
+sns.lineplot(data=truth, label='truth', color='red')
+
+plt.show()
+
+
+
+
+
+
