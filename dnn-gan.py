@@ -31,7 +31,7 @@ for f in glob.glob(MY_FOLDER + '*'):
 ############### 데이터 준비 ##############
 
 # 결과는 numpy의 n-차원 행렬 형식
-def red_data():
+def read_data():
     # 학습용 입력값만 사용 (GAN은 비지도 학습이기 때문에 출력 데이터, 평가용도 필요 없음)
     (X_train, _), (_, _) = mnist.load_data()
 
@@ -48,7 +48,7 @@ def red_data():
 
     return X_train
 
-# red_data()
+# read_data()
 
 ################ 인공 신경망 구현 #################
 
@@ -131,11 +131,149 @@ def build_GAN():
 
     return discriminator, generator, model
 
-build_GAN()
+# build_GAN()
 
 
+################## 인공 신경망 학습 ####################
+
+# 감별자 학습 방법
+def train_discriminator():
+
+    # 진짜 이미지 임의로 한 batch 추출
+    total = X_train.shape[0]
+    pick = np.random.randint(0, total, MY_BATCH)
+    image = X_train[pick]
+
+    # 숫자 1을 한 batch 생성
+    all_1 = np.ones((MY_BATCH, 1))
+
+    # 진짜 이미지로 감별자 한 번 학습
+    d_loss_real = discriminator.train_on_batch(image,
+                                              all_1)
+
+    # print(d_loss_real) # [ 손실값, 정확도 ]
+
+    # 생성자를 이용하여 가짜 이미지 생성
+    # 노이즈 벡터는 표준 정규 분포를 사용
+    noise = np.random.normal(0, 1,
+                             (MY_BATCH, MY_NOISE))
+    fake = generator.predict(noise)
+    # print(fake.shape)
+
+    # 숫자 0을 한 batch 생성
+    all_0 = np.zeros((MY_BATCH, 1))
+    # print(all_0.shape)
+
+    # 가짜 이미지로 감별자 한 번 학습
+    d_loss_fake = discriminator.train_on_batch(fake,
+                                               all_0)
+    # print(d_loss_fake)
+
+    # 평균 손실과 정확도 계산
+    d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+    # print(d_loss)
+
+    return d_loss
+
+# X_train = read_data()
+# discriminator, generator, gan = build_GAN()
+# train_discriminator()
+
+# 생성자 학습 방법
+def train_generator():
+
+    # 노이즈 벡터는 표준 정규 분포를 사용
+    noise = np.random.normal(0, 1,
+                             (MY_BATCH, MY_NOISE))
+    # print(noise.shape)
+
+    # 숫자 1을 한 batch 생성
+    all_1 = np.ones((MY_BATCH, 1))
+    # print(all_1.shape)
+
+    # 가짜 이미지로 생성자 한 번 학습
+    g_loss = gan.train_on_batch(noise,
+                                all_1)
+    # print(g_loss) # 손실값
+
+    return g_loss
+
+# X_train = read_data()
+# discriminator, generator, gan = build_GAN()
+# train_generator()
+
+# 샘플 이미지 N * N 출력
+def sample(epoch):
+    row = col = 4
+
+    # 노이즈 벡터 생성
+    noise = np.random.normal(0, 1,
+                             (row * col, MY_NOISE))
+    # print(noise.shape)
+
+    # 생성자를 이용하여 가짜 이미지 생성
+    fake = generator.predict(noise)
+    # print(fake.shape)
+
+    # 채널 정보 삭제
+    fake = np.squeeze(fake)
+    # print(fake.shape)
+
+    # 캔버스 만들기
+    fig, spot = plt.subplots(row, col)
+
+    # i행 j열에 가짜 이미지 추가
+    cnt = 0
+    for i in range(row):
+        for j in range(col):
+            spot[i, j].imshow(fake[cnt], cmap='gray')
+            spot[i, j].axis('off')
+            cnt += 1
+
+    # plt.show()
+
+    # 이미지를 PNG 파일로 저장
+    path = os.path.join(MY_FOLDER,
+                        'img-{}'.format(epoch))
+    plt.savefig(path)
+    plt.close()
+
+# X_train = read_data()
+# discriminator, generator, gan = build_GAN()
+# sample(0)
+
+# GAN 학습
+def train_GAN():
+    begin = time()
+    print('\nGAN 학습 시작')
+
+    # MY_EPOCH = 200 # 5000번을 하면 너무 길어질까봐 200으로 설정함
+    for epoch in range(MY_EPOCH + 1):
+        d_loss = train_discriminator()
+        g_loss = train_generator()
+
+        # 매 50번 학습 때마다 결과와 샘플 이미지 생성
+        if epoch % 50 == 0:
+            print('에포크:', epoch,
+                  '생성자 손실: {:.3f}'.format(g_loss),
+                  '감별자 손실: {:.3f}'.format(d_loss[0]),
+                  '감별자 정확도: {:.1f}%'.format(d_loss[1] * 100))
+            sample(epoch)
+    end = time()
+
+    print('최종 학습 시간: {:.1f}초'.format(end - begin))
 
 
+############# 컨트롤 타워 #############
+
+# 데이터 준비
+X_train = read_data()
+
+# GAN 구현
+discriminator, generator, gan = build_GAN()
+
+# GAN 학습
+train_GAN()
 
 
 
